@@ -37,6 +37,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# planilhas de importação (dados já importados para o banco)
+*.xlsx
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
