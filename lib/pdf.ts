@@ -360,7 +360,7 @@ export function gerarRelatorioPdf(emails: EmailInstitucional[]) {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
     doc.setTextColor(148, 163, 184);
-    doc.text("Prefeitura Municipal de Juína/MT – Sistema de Controle de E-mails Institucionais", MARGEM, ALT - 32);
+    doc.text("Prefeitura Municipal de Juína/MT – Sistema de Controle de E-mails Institucionais · Desenvolvido Departamento Tecnologia SME", MARGEM, ALT - 32);
     doc.text(`Página ${i} de ${nPaginas}`, LARG - MARGEM, ALT - 32, { align: "right" });
   }
 

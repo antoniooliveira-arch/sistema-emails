@@ -17,10 +17,11 @@ export default function Home() {
         </p>
       </header>
       <FormularioEmail />
-      <footer className="text-center text-xs text-zinc-400">
+      <footer className="flex flex-col items-center gap-1 text-center text-xs text-zinc-400">
         <a href="/admin" className="hover:text-zinc-600">
           Painel administrativo
         </a>
+        <span>Desenvolvido Departamento Tecnologia SME</span>
       </footer>
     </main>
   );
