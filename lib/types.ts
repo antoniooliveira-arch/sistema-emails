@@ -37,6 +37,7 @@ export type EmailInstitucional = {
   responsavel: string | null;
   cargo: string | null;
   situacao: Situacao;
+  encaminhado: boolean;
   observacao: string | null;
   atualizado_em: string | null;
 };

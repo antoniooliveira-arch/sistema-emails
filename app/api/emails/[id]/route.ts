@@ -27,9 +27,25 @@ export async function PATCH(request: NextRequest, ctx: RouteContext<"/api/emails
     return NextResponse.json({ error: "Situação inválida" }, { status: 400 });
   }
 
+  const existente = await query<{ encaminhado: boolean }>(
+    `SELECT encaminhado FROM public.emails_institucionais WHERE id = $1`,
+    [emailId]
+  );
+
+  if (existente.length === 0) {
+    return NextResponse.json({ error: "E-mail não encontrado" }, { status: 404 });
+  }
+
+  if (existente[0].encaminhado) {
+    return NextResponse.json(
+      { error: "Formulário já encaminhado para este e-mail. Não é permitido gerar duplicidade." },
+      { status: 409 }
+    );
+  }
+
   const result = await query(
     `UPDATE public.emails_institucionais
-     SET setor = $1, responsavel = $2, cargo = $3, situacao = $4, observacao = $5, atualizado_em = now()
+     SET setor = $1, responsavel = $2, cargo = $3, situacao = $4, observacao = $5, encaminhado = true, atualizado_em = now()
      WHERE id = $6
      RETURNING id`,
     [setor, responsavel, cargo, situacao, observacao, emailId]

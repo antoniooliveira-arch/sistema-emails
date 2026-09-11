@@ -15,6 +15,8 @@ export default function FormularioEmail() {
   const [emailId, setEmailId] = useState("");
   const [emailAtual, setEmailAtual] = useState<EmailInstitucional | null>(null);
 
+  const jaEncaminhado = !!emailAtual?.encaminhado;
+
   const [setor, setSetor] = useState("");
   const [responsavel, setResponsavel] = useState("");
   const [cargo, setCargo] = useState("");
@@ -79,6 +81,10 @@ export default function FormularioEmail() {
       setMensagem({ tipo: "erro", texto: "Selecione um e-mail para salvar as informações." });
       return;
     }
+    if (jaEncaminhado) {
+      setMensagem({ tipo: "erro", texto: "Formulário já encaminhado para este e-mail. Não é permitido gerar duplicidade." });
+      return;
+    }
     setSalvando(true);
     setMensagem(null);
     try {
@@ -138,6 +144,20 @@ export default function FormularioEmail() {
         </div>
       )}
 
+      {jaEncaminhado && (
+        <div
+          role="status"
+          className={`fixed left-1/2 top-20 z-50 flex w-[calc(100%-2rem)] max-w-md -translate-x-1/2 items-start gap-3 rounded-lg border px-4 py-3 text-sm font-medium shadow-lg ${
+            "border-emerald-300 bg-emerald-50 text-emerald-800"
+          }`}
+        >
+          <span className="text-lg leading-none">✅</span>
+          <span>
+            Formulário já encaminhado para <strong>{emailAtual?.email}</strong>. Não é permitido gerar duplicidade.
+          </span>
+        </div>
+      )}
+
       <form
         onSubmit={salvar}
         className="space-y-6 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm"
@@ -194,8 +214,9 @@ export default function FormularioEmail() {
           type="text"
           value={setor}
           onChange={(e) => setSetor(e.target.value)}
+          disabled={jaEncaminhado}
           placeholder="Ex.: Departamento de Compras"
-          className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+          className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:cursor-not-allowed disabled:bg-zinc-100"
         />
       </label>
 
@@ -205,8 +226,9 @@ export default function FormularioEmail() {
           type="text"
           value={responsavel}
           onChange={(e) => setResponsavel(e.target.value)}
+          disabled={jaEncaminhado}
           placeholder="Nome do responsável"
-          className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+          className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:cursor-not-allowed disabled:bg-zinc-100"
         />
       </label>
 
@@ -216,8 +238,9 @@ export default function FormularioEmail() {
           type="text"
           value={cargo}
           onChange={(e) => setCargo(e.target.value)}
+          disabled={jaEncaminhado}
           placeholder="Ex.: Coordenador(a)"
-          className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+          className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:cursor-not-allowed disabled:bg-zinc-100"
         />
       </label>
 
@@ -231,11 +254,12 @@ export default function FormularioEmail() {
                 key={s.value}
                 type="button"
                 onClick={() => setSituacao(s.value)}
+                disabled={jaEncaminhado}
                 className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm transition ${
                   ativo
                     ? "border-blue-500 bg-blue-50 font-medium text-blue-700 ring-2 ring-blue-200"
                     : "border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50"
-                }`}
+                } ${jaEncaminhado ? "cursor-not-allowed opacity-60" : ""}`}
               >
                 <span>{s.emoji}</span>
                 <span>{s.label}</span>
@@ -250,19 +274,24 @@ export default function FormularioEmail() {
         <textarea
           value={observacao}
           onChange={(e) => setObservacao(e.target.value)}
+          disabled={jaEncaminhado}
           rows={3}
           placeholder="Observações sobre o e-mail…"
-          className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+          className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:cursor-not-allowed disabled:bg-zinc-100"
         />
       </label>
 
       <div className="flex flex-col gap-3">
         <button
           type="submit"
-          disabled={salvando}
+          disabled={salvando || jaEncaminhado}
           className="rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
         >
-          {salvando ? "Salvando…" : "Salvar informações"}
+          {jaEncaminhado
+            ? "Formulário já encaminhado"
+            : salvando
+              ? "Salvando…"
+              : "Salvar informações"}
         </button>
       </div>
       </form>

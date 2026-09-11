@@ -5,14 +5,15 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { EmailInstitucional } from "@/lib/types";
 import { situacoes, situacaoInfo } from "@/lib/types";
+import { gerarRelatorioPdf } from "@/lib/pdf";
 
-type Resumo = { total: number; utilizadas: number; pendentes: number };
+type Resumo = { total: number; utilizadas: number; encaminhados: number };
 
 export default function AdminPanel() {
   const router = useRouter();
 
   const [emails, setEmails] = useState<EmailInstitucional[]>([]);
-  const [resumo, setResumo] = useState<Resumo>({ total: 0, utilizadas: 0, pendentes: 0 });
+  const [resumo, setResumo] = useState<Resumo>({ total: 0, utilizadas: 0, encaminhados: 0 });
   const [secretarias, setSecretarias] = useState<string[]>([]);
   const [carregando, setCarregando] = useState(true);
 
@@ -103,7 +104,7 @@ export default function AdminPanel() {
 
   function exportarCsv() {
     const linhas = [
-      ["Secretaria", "E-mail", "Setor", "Responsável", "Cargo/Função", "Situação", "Observações", "Atualizado em"],
+      ["Secretaria", "E-mail", "Setor", "Responsável", "Cargo/Função", "Situação", "Encaminhado", "Observações", "Atualizado em"],
       ...emails.map((e) => [
         e.secretaria,
         e.email,
@@ -111,6 +112,7 @@ export default function AdminPanel() {
         e.responsavel ?? "",
         e.cargo ?? "",
         situacaoInfo(e.situacao).label,
+        e.encaminhado ? "Sim" : "Não",
         e.observacao ?? "",
         e.atualizado_em ? new Date(e.atualizado_em).toLocaleString("pt-BR") : "",
       ]),
@@ -132,6 +134,13 @@ export default function AdminPanel() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-lg font-semibold text-zinc-900">Relatório por Secretaria / Setor / E-mail</h2>
         <div className="flex gap-2">
+          <button
+            onClick={() => gerarRelatorioPdf(emails)}
+            className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-100"
+            title="Baixar relatório em PDF com gráficos"
+          >
+            📄 Exportar PDF
+          </button>
           <button
             onClick={exportarCsv}
             className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
@@ -159,12 +168,12 @@ export default function AdminPanel() {
           <p className="mt-1 text-2xl font-bold text-zinc-900">{resumo.total}</p>
         </div>
         <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-          <p className="text-xs font-medium uppercase tracking-wide text-emerald-600">Em uso</p>
-          <p className="mt-1 text-2xl font-bold text-emerald-700">{resumo.utilizadas}</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-emerald-600">Formulários encaminhados</p>
+          <p className="mt-1 text-2xl font-bold text-emerald-700">{resumo.encaminhados}</p>
         </div>
         <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
           <p className="text-xs font-medium uppercase tracking-wide text-amber-600">Pendentes de preenchimento</p>
-          <p className="mt-1 text-2xl font-bold text-amber-700">{resumo.pendentes}</p>
+          <p className="mt-1 text-2xl font-bold text-amber-700">{resumo.total - resumo.encaminhados}</p>
         </div>
       </div>
 
@@ -248,6 +257,7 @@ export default function AdminPanel() {
               <th className="px-4 py-3">Responsável</th>
               <th className="px-4 py-3">Cargo/Função</th>
               <th className="px-4 py-3">Situação</th>
+              <th className="px-4 py-3">Encaminhado</th>
               <th className="px-4 py-3">Observações</th>
               <th className="px-4 py-3">Atualizado em</th>
               <th className="px-4 py-3" />
@@ -256,11 +266,11 @@ export default function AdminPanel() {
           <tbody>
             {carregando ? (
               <tr>
-                <td colSpan={9} className="px-4 py-8 text-center text-zinc-400">Carregando…</td>
+                <td colSpan={10} className="px-4 py-8 text-center text-zinc-400">Carregando…</td>
               </tr>
             ) : emails.length === 0 ? (
               <tr>
-                <td colSpan={9} className="px-4 py-8 text-center text-zinc-400">Nenhum e-mail encontrado.</td>
+                <td colSpan={10} className="px-4 py-8 text-center text-zinc-400">Nenhum e-mail encontrado.</td>
               </tr>
             ) : (
               emails.map((e) => {
@@ -276,6 +286,17 @@ export default function AdminPanel() {
                       <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${s.cor}`}>
                         {s.emoji} {s.label}
                       </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      {e.encaminhado ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200">
+                          ✓ Sim
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-500 ring-1 ring-zinc-200">
+                          — Não
+                        </span>
+                      )}
                     </td>
                     <td className="max-w-[180px] truncate px-4 py-3 text-zinc-500" title={e.observacao ?? ""}>
                       {e.observacao || "—"}

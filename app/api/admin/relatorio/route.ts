@@ -36,17 +36,17 @@ export async function GET(request: NextRequest) {
   const where = condicoes.length ? `WHERE ${condicoes.join(" AND ")}` : "";
 
   const emails = await query<EmailInstitucional>(
-    `SELECT id, secretaria, email, setor, responsavel, cargo, situacao, observacao, atualizado_em
+    `SELECT id, secretaria, email, setor, responsavel, cargo, situacao, encaminhado, observacao, atualizado_em
      FROM public.emails_institucionais
      ${where}
      ORDER BY secretaria, email`,
     valores
   );
 
-  const ativas = await query<{ total: number; utilizadas: number; pendentes: number }>(
+  const ativas = await query<{ total: number; utilizadas: number; encaminhados: number }>(
     `SELECT COUNT(*)::int AS total,
             COUNT(*) FILTER (WHERE situacao IN ('em_uso','em_uso_atualizar_responsavel'))::int AS utilizadas,
-            COUNT(*) FILTER (WHERE situacao = 'nao_localizado' AND setor IS NULL)::int AS pendentes
+            COUNT(*) FILTER (WHERE encaminhado)::int AS encaminhados
      FROM public.emails_institucionais`
   );
 

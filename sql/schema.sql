@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS public.emails_institucionais (
       'desativado',
       'nao_localizado'
     )),
+  encaminhado BOOLEAN NOT NULL DEFAULT false,
   observacao TEXT,
   atualizado_em TIMESTAMPTZ NOT NULL DEFAULT now(),
   criado_em TIMESTAMPTZ NOT NULL DEFAULT now()
