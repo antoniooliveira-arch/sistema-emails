@@ -1,36 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sistema de Controle de E-mails Institucionais
 
-## Getting Started
+Formulário web para o levantamento dos e-mails institucionais (por secretaria e setor)
+com banco de dados no **Supabase (PostgreSQL)**, painel administrativo e exportação em CSV.
 
-First, run the development server:
+## Tecnologias
+
+- Next.js (App Router) + TypeScript + Tailwind CSS
+- Supabase / PostgreSQL
+- Deploy sugerido: Vercel + GitHub
+
+## Estrutura
+
+```
+sistema-emails/
+├── app/
+│   ├── page.tsx              # Formulário público de levantamento
+│   ├── admin/page.tsx        # Painel administrativo (com login)
+│   └── api/                  # Rotas de API (REST)
+├── components/
+│   ├── FormularioEmail.tsx   # Formulário de levantamento
+│   ├── AdminPanel.tsx        # Relatório por secretaria/setor/e-mail
+│   └── LoginForm.tsx         # Login do painel admin
+├── lib/
+│   ├── db.ts                 # Conexão com o banco (pg)
+│   ├── auth.ts               # Autenticação do painel admin
+│   └── types.ts              # Tipos e situações do e-mail
+├── sql/schema.sql            # Migração do banco de dados
+└── scripts/                  # Scripts de banco (migrar, seed, importar CSV)
+```
+
+## Configuração
+
+1. Instale as dependências:
+
+```bash
+npm install
+```
+
+2. Crie o arquivo `.env.local` a partir de `.env.example` e preencha com as
+credenciais do Supabase (host, senha) e a senha do painel admin:
+
+```bash
+cp .env.example .env.local
+```
+
+3. Aplique o schema e popule com dados iniciais:
+
+```bash
+npm run db:migrate   # cria as tabelas no Supabase
+npm run db:seed      # (opcional) insere e-mails de exemplo
+```
+
+Importar os 51 e-mails a partir de uma planilha CSV (colunas `secretaria;email`):
+
+```bash
+npm run db:import -- planilha-emails.csv
+```
+
+4. Execute a aplicação:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Formulário: http://localhost:3000
+- Painel admin: http://localhost:3000/admin (senha definida em `ADMIN_PASSWORD`)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Considerações de segurança
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- O arquivo `.env.local` contém a senha do banco e **não é enviado ao GitHub**
+  (veja `.gitignore`). No deploy do Vercel, configure as mesmas variáveis em
+  **Settings → Environment Variables**.
+- O painel admin é protegido por senha (cookie httpOnly). Para ambientes de
+  produção com várias secretarias, recomenda-se substituir pela autenticação
+  do Supabase Auth.
