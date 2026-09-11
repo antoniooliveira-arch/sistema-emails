@@ -60,7 +60,7 @@ export default function FormularioEmail() {
 
   function aoSelecionarEmail(id: string) {
     setEmailId(id);
-    const atual = emails.find((e) => e.id === Number(id)) ?? null;
+    const atual = emails.find((e) => String(e.id) === String(id)) ?? null;
     setEmailAtual(atual);
     if (atual) {
       setSetor(atual.setor ?? "");
