@@ -105,14 +105,12 @@ export default function FormularioEmail() {
   }
 
   return (
-    <form
-      onSubmit={salvar}
-      className="space-y-6 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm"
-    >
+    <>
       {mensagem && (
         <div
           role="alert"
-          className={`flex items-start gap-3 rounded-lg border px-4 py-3 text-sm font-medium ${
+          aria-live="polite"
+          className={`fixed left-1/2 top-4 z-50 flex w-[calc(100%-2rem)] max-w-md -translate-x-1/2 items-start gap-3 rounded-lg border px-4 py-3 text-sm font-medium shadow-lg ${
             mensagem.tipo === "sucesso"
               ? "border-emerald-300 bg-emerald-50 text-emerald-800"
               : "border-red-300 bg-red-50 text-red-800"
@@ -125,6 +123,10 @@ export default function FormularioEmail() {
         </div>
       )}
 
+      <form
+        onSubmit={salvar}
+        className="space-y-6 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm"
+      >
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block">
           <span className="mb-1 block text-sm font-medium text-zinc-700">Secretaria</span>
@@ -248,6 +250,7 @@ export default function FormularioEmail() {
           {salvando ? "Salvando…" : "Salvar informações"}
         </button>
       </div>
-    </form>
+      </form>
+    </>
   );
 }
