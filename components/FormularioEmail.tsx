@@ -91,11 +91,26 @@ export default function FormularioEmail() {
       if (!res.ok) {
         setMensagem({ tipo: "erro", texto: data.error ?? "Erro ao salvar." });
       } else {
-        setMensagem({
-          tipo: "sucesso",
-          texto: `Registro concluído! As informações do e-mail ${emailAtual?.email ?? ""} foram salvas.`,
-        });
+        const salvoEmail = emailAtual?.email ?? "";
+        const indice = emails.findIndex((e) => String(e.id) === String(emailId));
+        const proximoEmail = indice >= 0 ? emails[indice + 1] ?? null : null;
+
         carregarEmails(secretaria);
+
+        limparCampos();
+        if (proximoEmail) {
+          aoSelecionarEmail(String(proximoEmail.id));
+          limparCampos();
+          setMensagem({
+            tipo: "sucesso",
+            texto: `Registro concluído! E-mail ${salvoEmail} salvo. Próximo: ${proximoEmail.email}`,
+          });
+        } else {
+          setMensagem({
+            tipo: "sucesso",
+            texto: `Registro concluído! E-mail ${salvoEmail} salvo. Este foi o último da lista.`,
+          });
+        }
       }
     } catch {
       setMensagem({ tipo: "erro", texto: "Falha de conexão. Tente novamente." });
