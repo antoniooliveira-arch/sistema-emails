@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs";
 import XLSX from "xlsx";
 import pkg from "pg";
 

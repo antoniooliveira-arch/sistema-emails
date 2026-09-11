@@ -36,6 +36,12 @@ export default function FormularioEmail() {
       .then(setSecretarias);
   }, []);
 
+  useEffect(() => {
+    if (!mensagem || mensagem.tipo !== "sucesso") return;
+    const timer = setTimeout(() => setMensagem(null), 5000);
+    return () => clearTimeout(timer);
+  }, [mensagem]);
+
   function aoTrocarSecretaria(nome: string) {
     setSecretaria(nome);
     setEmailId("");
@@ -87,7 +93,7 @@ export default function FormularioEmail() {
       } else {
         setMensagem({
           tipo: "sucesso",
-          texto: `Informações do e-mail ${emailAtual?.email ?? ""} salvas com sucesso.`,
+          texto: `Registro concluído! As informações do e-mail ${emailAtual?.email ?? ""} foram salvas.`,
         });
         carregarEmails(secretaria);
       }
@@ -103,6 +109,22 @@ export default function FormularioEmail() {
       onSubmit={salvar}
       className="space-y-6 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm"
     >
+      {mensagem && (
+        <div
+          role="alert"
+          className={`flex items-start gap-3 rounded-lg border px-4 py-3 text-sm font-medium ${
+            mensagem.tipo === "sucesso"
+              ? "border-emerald-300 bg-emerald-50 text-emerald-800"
+              : "border-red-300 bg-red-50 text-red-800"
+          }`}
+        >
+          <span className="text-lg leading-none">
+            {mensagem.tipo === "sucesso" ? "✅" : "⚠️"}
+          </span>
+          <span>{mensagem.texto}</span>
+        </div>
+      )}
+
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block">
           <span className="mb-1 block text-sm font-medium text-zinc-700">Secretaria</span>
@@ -225,11 +247,6 @@ export default function FormularioEmail() {
         >
           {salvando ? "Salvando…" : "Salvar informações"}
         </button>
-        {mensagem && (
-          <p className={`text-sm ${mensagem.tipo === "sucesso" ? "text-emerald-600" : "text-red-600"}`}>
-            {mensagem.texto}
-          </p>
-        )}
       </div>
     </form>
   );
